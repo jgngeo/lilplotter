@@ -1,0 +1,28 @@
+#Main Keys
+JKEY_UICONFIG	= "UICONFIG"
+JKEY_DATAMAP	= "DATAMAP"
+
+#Plot Keys
+JKEY_PLOTS	= "PLOTS"
+JKEY_PLOTID	= "id"
+JKEY_PLOTTITLE	= "title"
+JKEY_PLOTLAXTITLE = "YLeftAxisTitle"
+JKEY_PLOTRAXTITLE = "YRightAxisTitle"
+JKEY_PLOTXBOTTITLE = "XBottomAxisTitle"
+
+#Table Keys
+JKEY_TABLES	= "TABLES"
+JKEY_TABID	= "id"
+JKEY_TABTITLE	= "title"
+JKEY_TABOPTIONS	= "options"
+
+#Signal Keys
+JKEY_SIGNALID	= "signalID"
+JKEY_BYTES	= "bytes"
+JKEY_READAS	= "readAs"
+JKEY_SIGNALNAME	= "signalName"
+JKEY_SHOWON	= "showOn"
+
+JKEY_CONFIG	= "CONFIG"
+JKEY_PLOTREFRESH_MS	= "refreshPlotms"
+JKEY_TABLEREFRESH_MS	= "refreshTablems"
