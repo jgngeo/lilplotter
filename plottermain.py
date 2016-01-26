@@ -137,8 +137,8 @@ timerDat.timeout.connect(updateData)
 
 timer = pg.QtCore.QTimer()
 timer.timeout.connect(updatePlots)
-#timer.start(configobjs[JKEY_PLOTREFRESH_MS])
-timer.start(50)
+timer.start(configobjs[JKEY_PLOTREFRESH_MS])
+#timer.start(50)
 
 timer2 = pg.QtCore.QTimer()
 timer2.timeout.connect(updateTable)
@@ -211,7 +211,7 @@ def serialWorker(port, baud, decodestr):
 		
 
 
-thread = Thread(target= serialWorker, args=("/dev/ttyACM0", 115200, decodestr))
+thread = Thread(target= serialWorker, args=("/dev/ttyACM1", 115200, decodestr))
 thread.start()
 win.show()
 
