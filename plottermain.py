@@ -4,12 +4,15 @@
 
 import sys
 import json
+import struct
+from threading import Thread
 
 import numpy as np
 
 from jsonconsts import *
 from lildock import *
 from utils import *
+from serialconsts import *
 from pyqtgraph.dockarea import *
 
 from pyqtgraph.Qt import QtCore, QtGui
@@ -40,6 +43,8 @@ configobjs	= uiconfigobj[JKEY_CONFIG]
 decodestrhead 	= "<III"
 decodestrtail 	= "I"
 decodestr	= decodestrhead
+
+stopWorker = False
 
 print ("Found %d plots"%len(plotobjs))
 print ("Found %d Tables"%len(tableobjs))
@@ -128,7 +133,7 @@ def updateTable():
 	
 timerDat = pg.QtCore.QTimer()
 timerDat.timeout.connect(updateData)
-timerDat.start(10)
+#timerDat.start(10)
 
 timer = pg.QtCore.QTimer()
 timer.timeout.connect(updatePlots)
@@ -143,13 +148,77 @@ timer2.start(configobjs[JKEY_TABLEREFRESH_MS])
 decodestr += decodestrtail
 print decodestr
 
+#We will start a thread and parse the serial protocol packet
+def serialWorker(port, baud, decodestr):
+	import serial
+	global signallist
+	global stopWorker
+	ser = serial.Serial(port, baud)
+	print ser
+	print("Starting Serial Worker Thread");		
+	bytestr = ''
+	while(1):
+		if stopWorker:
+			return
+		byte = ser.read()
+		bytestr+= byte
+		if len(bytestr) == 4:
+			dat = struct.unpack('<I', bytestr[0:4])[0]
+			if dat == PRTCL_SOF:
+				while 1:
+					if stopWorker:
+						return
+					bytestr += ser.read()	
+					if(len(bytestr) == 8):
+						datalen = struct.unpack('<I', bytestr[4:8])[0]
+						totlen = datalen + 8		#for CRC and EOF
+						while(totlen):
+							if stopWorker:
+								return
+							bytestr += ser.read()
+							totlen -= 1
+						#We have the complete packet. Validate it
+						try:
+							decodedata = struct.unpack(decodestr, bytestr)
+							bytestr = ''
+							if decodedata[PRTCL_INDEXOF_SOF] != PRTCL_SOF:
+								print("INvalid Packet. ERR in SOF");
+								break
+
+							if decodedata[-1] != PRTCL_EOF:
+								print("Invalid Packet. ERR in EOF Got : "), (hex(decodedata[-1]))
+								break
+							#We have the compelte data. Add it to the dock data list
+							dlen = len(decodestr) - 5
+							assert(dlen == len(signallist))
+							inst = 0
+							for signal in signallist:
+								for showitem in signal['showlist']:
+									showitem['obj'].addData(showitem['inst'], [decodedata[PRTCL_INDEXOF_DATA + inst]])
+								inst += 1
+							break
+						except Exception as e:
+							print("Not possible to decode data "), e;
+							bytestr = ''
+							break
+						
+						
+			else:
+				bytestr = bytestr[1:]
+				continue
+
+
+		
+
+
+thread = Thread(target= serialWorker, args=("/dev/ttyACM0", 115200, decodestr))
+thread.start()
 win.show()
-
-
 
 ## Start Qt event loop unless running in interactive mode or using pyside.
 if __name__ == '__main__':
     import sys
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()
+	stopWorker = True
 

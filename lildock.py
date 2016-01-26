@@ -107,7 +107,7 @@ class lildock(Dock):
 				else:
 					self.refdata += range(0, updatelen)
 				
-				print self.startindex, self.endindex	
+				#print self.startindex, self.endindex	
 				self.wid.setXRange(self.refdata[self.startindex], self.refdata[self.endindex], padding = 0)
 
 				for inst in range(len(self.data)):
