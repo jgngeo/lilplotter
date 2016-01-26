@@ -79,6 +79,7 @@ class lildock(Dock):
 				lenlist.append(len(self.newdata[inst]))	
 
 			updatelen = min(lenlist)
+			updatelen = MAX_PTS_TO_UPDATE if  updatelen > MAX_PTS_TO_UPDATE	else updatelen
 
 			if updatelen:
 				lenavail = MAX_PTS_TO_SHOW - len(self.data[0])

@@ -45,6 +45,7 @@ decodestrtail 	= "I"
 decodestr	= decodestrhead
 
 stopWorker = False
+plotpaused = False
 
 print ("Found %d plots"%len(plotobjs))
 print ("Found %d Tables"%len(tableobjs))
@@ -62,15 +63,32 @@ signallist = []
 plotidlist = []
 tabidlist = []
 
+def pausePressed():
+	global plotpaused, pauseBtn
+	plotpaused = True if not plotpaused else False
+	if plotpaused:
+		pauseBtn.setText("Resume")	
+	else:
+		pauseBtn.setText("Pause")	
+
+#Main Control dock
+ctrldock = Dock("Control Dock", size=(1,1))
+area.addDock(ctrldock, 'left')
+w1 = pg.LayoutWidget()
+pauseBtn = QtGui.QPushButton('Pause Plots')
+w1.addWidget(pauseBtn, row=0, col=0)
+ctrldock.addWidget(w1)
+pauseBtn.clicked.connect(pausePressed)
+
 for plotobj in plotobjs:
 	dock = lildock(plotobj[JKEY_PLOTTITLE], size=(1,1), mode="PLOT")	
-	area.addDock(dock, 'left')
+	area.addDock(dock, 'bottom')
 	dockdict.update({plotobj[JKEY_PLOTID]:{'dock': dock, 'jsonobj': plotobj.copy()}})
 	plotidlist.append(plotobj[JKEY_PLOTID])
 	
 for tableobj in tableobjs:
 	dock = lildock(tableobj[JKEY_TABTITLE], size=(1,1), mode="TABLE")	
-	area.addDock(dock, 'left')
+	area.addDock(dock, 'bottom')
 	dockdict.update({tableobj[JKEY_PLOTID]:{'dock': dock, 'jsonobj': tableobj.copy()}})
 	tabidlist.append(tableobj[JKEY_TABID])
 
@@ -118,14 +136,18 @@ def updateData():
 		for showitem in signal['showlist']:
 			showitem['obj'].addData(showitem['inst'], np.random.normal(size=1).tolist())
 def updatePlots():
-	global signallist
+	global signallist, plotpaused
+	if plotpaused:
+		return	
 	for signal in signallist:
 		for showitem in signal['showlist']:
 			if showitem['showtype'] == 'PLOT':
 				showitem['obj'].update()
 
 def updateTable():
-	global signallist
+	global signallist, plotpaused
+	if plotpaused:
+		return	
 	for signal in signallist:
 		for showitem in signal['showlist']:
 			if showitem['showtype'] == 'TABLE':

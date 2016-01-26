@@ -21,3 +21,4 @@ tableoptkeys = ['SIGNAL','VAL', 'AVG', 'MIN', 'MAX']  #Order is important. Shoul
 
 
 MAX_PTS_TO_SHOW = 1000
+MAX_PTS_TO_UPDATE = 500
