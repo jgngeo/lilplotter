@@ -71,6 +71,11 @@ class lildock(Dock):
 	def addData(self, inst, dat):
 		self.newdata[inst] += dat
 
+	def isPlotTransformationsApplied(self):
+		uiobj =  self.wid.plotItem.ctrl
+		return (uiobj.fftCheck.isChecked() or uiobj.logXCheck.isChecked() or uiobj.logYCheck.isChecked())
+		
+
 	def update(self):
 		if self.mode == "PLOT":
 			#update only the number of points for which all the plots have been updated
@@ -84,32 +89,33 @@ class lildock(Dock):
 			if updatelen:
 				lenavail = MAX_PTS_TO_SHOW - len(self.data[0])
 				removelen = (updatelen - lenavail) if (updatelen > lenavail) else 0
-				
-
+			
 				if len(self.refdata):
 					if len(self.refdata) < MAX_PTS_TO_SHOW:
 						self.startindex = 0
 						self.endindex = len(self.refdata)
 					else:
-						rangex = self.wid.viewRange()[0]
-						start = int(rangex[0])
-						end = int(rangex[1])
-						npts = end - start
-						if start > 0 and start > self.refdata[0]:
-							self.startindex = self.refdata.index(start)
-						else:
-							self.startindex = 0
-						if end < self.refdata[-1]:
-							self.endindex = self.refdata.index(end)
-						else:
-							self.endindex = len(self.refdata) - 1
+						if not self.isPlotTransformationsApplied() :
+							rangex = self.wid.viewRange()[0]
+							start = int(rangex[0])
+							end = int(rangex[1])
+							npts = end - start
+							if start > 0 and start > self.refdata[0]:
+								self.startindex = self.refdata.index(start)
+							else:
+								self.startindex = 0
+							if end < self.refdata[-1]:
+								self.endindex = self.refdata.index(end)
+							else:
+								self.endindex = len(self.refdata) - 1
 					self.refdata += range(self.refdata[-1]+1, self.refdata[-1] + updatelen+1)
 					self.refdata = self.refdata[removelen:]
 				else:
 					self.refdata += range(0, updatelen)
 				
 				#print self.startindex, self.endindex	
-				self.wid.setXRange(self.refdata[self.startindex], self.refdata[self.endindex], padding = 0)
+				if not self.isPlotTransformationsApplied() :
+					self.wid.setXRange(self.refdata[self.startindex], self.refdata[self.endindex], padding = 0)
 
 				for inst in range(len(self.data)):
 					self.data[inst][:] = self.data[inst][removelen:]
