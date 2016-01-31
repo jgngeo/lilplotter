@@ -20,7 +20,7 @@ class lildock(Dock):
 		self.startindex = 0
 		self.endindex = 0
 		self.legenditem = None
-		self.updatePlot = True
+		self.updateinfo = True
 		if  mode == "PLOT":
 			self.wid = pg.PlotWidget(title="")
 			self.addWidget(self.wid)
@@ -32,19 +32,19 @@ class lildock(Dock):
 			self.wid.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
 			self.tabList = []
 
-	def addLegend():
+	def addLegend(self):
 		self.legenditem = self.wid.addLegend()
 	
-	def hideLegend():
+	def hideLegend(self):
 		if self.legenditem != None:
 			self.wid.removeItem(self.legenditem)
 			self.legenditem = None
 
-	def pausePlot(pause):
+	def pausePlot(self, pause):
 		if pause:
-			self.updatePlot = False
-		else
-			self.updatePlot = True
+			self.updateinfo = False
+		else:
+			self.updateinfo = True
 
 	#Returns the instance ID.
 	def addPlot(self, pen='k', name="Curve"):
@@ -91,6 +91,8 @@ class lildock(Dock):
 		
 
 	def update(self):
+		if not self.updateinfo:
+			return
 		if self.mode == "PLOT":
 			#update only the number of points for which all the plots have been updated
 			lenlist = []
