@@ -74,17 +74,13 @@ def pausePressed():
 #Main Control dock
 ctrldock = Dock("Control Dock", size=(1,1))
 area.addDock(ctrldock, 'left')
-w1 = pg.LayoutWidget()
-pauseBtn = QtGui.QPushButton('Pause Plots')
-w1.addWidget(pauseBtn, row=0, col=0)
-ctrldock.addWidget(w1)
-pauseBtn.clicked.connect(pausePressed)
 
 for plotobj in plotobjs:
 	dock = lildock(plotobj[JKEY_PLOTTITLE], size=(1,1), mode="PLOT")	
 	area.addDock(dock, 'bottom')
 	dockdict.update({plotobj[JKEY_PLOTID]:{'dock': dock, 'jsonobj': plotobj.copy()}})
 	plotidlist.append(plotobj[JKEY_PLOTID])
+	ctrldock.addWidget(dock.getControlWid())
 	
 for tableobj in tableobjs:
 	dock = lildock(tableobj[JKEY_TABTITLE], size=(1,1), mode="TABLE")	
@@ -155,7 +151,7 @@ def updateTable():
 	
 timerDat = pg.QtCore.QTimer()
 timerDat.timeout.connect(updateData)
-#timerDat.start(10)
+timerDat.start(10)
 
 timer = pg.QtCore.QTimer()
 timer.timeout.connect(updatePlots)
@@ -234,7 +230,7 @@ def serialWorker(port, baud, decodestr):
 
 
 thread = Thread(target= serialWorker, args=("/dev/ttyACM0", 115200, decodestr))
-thread.start()
+#thread.start()
 win.show()
 
 ## Start Qt event loop unless running in interactive mode or using pyside.

@@ -3,7 +3,8 @@ import pyqtgraph as pg
 
 from utils import *
 from pyqtgraph.Qt import QtCore, QtGui
- 
+from dockcontrol import * 
+
 modes = ["PLOT", "TABLE"]
 
 pens = ['b', 'r', 'g', 'c', 'y']
@@ -21,6 +22,9 @@ class lildock(Dock):
 		self.endindex = 0
 		self.legenditem = None
 		self.updateinfo = True
+		self.control = controlDock(title)
+		self.control.paused.connect(self.pausePlot)
+		self.control.showLegend.connect(self.showLegend)
 		if  mode == "PLOT":
 			self.wid = pg.PlotWidget(title="")
 			self.addWidget(self.wid)
@@ -32,14 +36,17 @@ class lildock(Dock):
 			self.wid.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
 			self.tabList = []
 
-	def addLegend(self):
-		self.legenditem = self.wid.addLegend()
-	
-	def hideLegend(self):
-		if self.legenditem != None:
+
+	def getControlWid(self):
+		return self.control
+
+	def showLegend(self, show):
+		if not show:
 			self.wid.removeItem(self.legenditem)
 			self.legenditem = None
-
+		else:
+			self.legenditem = self.wid.addLegend()
+	
 	def pausePlot(self, pause):
 		if pause:
 			self.updateinfo = False
