@@ -19,6 +19,8 @@ class lildock(Dock):
 		self.refdata = []
 		self.startindex = 0
 		self.endindex = 0
+		self.legenditem = None
+		self.updatePlot = True
 		if  mode == "PLOT":
 			self.wid = pg.PlotWidget(title="")
 			self.addWidget(self.wid)
@@ -30,7 +32,19 @@ class lildock(Dock):
 			self.wid.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
 			self.tabList = []
 
+	def addLegend():
+		self.legenditem = self.wid.addLegend()
+	
+	def hideLegend():
+		if self.legenditem != None:
+			self.wid.removeItem(self.legenditem)
+			self.legenditem = None
 
+	def pausePlot(pause):
+		if pause:
+			self.updatePlot = False
+		else
+			self.updatePlot = True
 
 	#Returns the instance ID.
 	def addPlot(self, pen='k', name="Curve"):

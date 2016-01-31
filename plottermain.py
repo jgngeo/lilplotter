@@ -155,7 +155,7 @@ def updateTable():
 	
 timerDat = pg.QtCore.QTimer()
 timerDat.timeout.connect(updateData)
-#timerDat.start(10)
+timerDat.start(10)
 
 timer = pg.QtCore.QTimer()
 timer.timeout.connect(updatePlots)
@@ -234,7 +234,7 @@ def serialWorker(port, baud, decodestr):
 
 
 thread = Thread(target= serialWorker, args=("/dev/ttyACM1", 115200, decodestr))
-thread.start()
+#thread.start()
 win.show()
 
 ## Start Qt event loop unless running in interactive mode or using pyside.
