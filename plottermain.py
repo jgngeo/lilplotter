@@ -95,17 +95,22 @@ for datmemb in datmapobj:
 	assert(end >= start)
 	nbytes = (end-start)+1
 	print("Bytes = %d"%nbytes);
-	if datmemb[JKEY_READAS] not in datatypeslist:
+
+        dtype = datmemb[JKEY_READAS]
+        arrlen = nbytes/bytelen[dtype]
+
+	print("Array Length = %d"%arrlen);
+
+	if dtype not in datatypeslist:
 		raise Exception("Invalid Data Type. Supported types" + str(datatypeslist))
 
-	if datmemb[JKEY_READAS] != 'string':
-		if datmemb[JKEY_READAS] not in dtypes4bytes[str(nbytes)]:
-			raise Exception("For " + str(nbytes) +" bytes expected data types are " + str(dtypes4bytes[str(nbytes)]))	
-		decodestr += unpackchar[datmemb[JKEY_READAS]]
-	else:
-		decodestr += str(nbytes)+unpackchar['string']
+	if dtype != 'string':
+		if dtype not in dtypes4bytes[str(nbytes/arrlen)]:
+			raise Exception("For " + str(nbytes/arrlen) +" bytes expected data types are " + str(dtypes4bytes[str(nbytes/arrlen)]))	
+
+        decodestr += str(arrlen)+unpackchar[dtype]
 	
-	signallist.append({'showlist': [], 'jsonobj':datmemb.copy()})
+        signallist.append({'showlist': [], 'jsonobj':datmemb.copy(), 'arrlen' : arrlen})
 	
 	showonlist = datmemb[JKEY_SHOWON]	
 
@@ -123,7 +128,7 @@ for datmemb in datmapobj:
 			inst = dockobj.addTable([], name=datmemb[JKEY_SIGNALNAME])
 			showtype = 'TABLE'
 		
-		signallist[-1]['showlist'].append({'obj':dockdict[showon]['dock'], 'inst':inst, 'showtype' : showtype})
+                signallist[-1]['showlist'].append({'obj':dockdict[showon]['dock'], 'inst':inst, 'showtype' : showtype})
 		print("Added " + datmemb[JKEY_SIGNALID] + " on " + str(dockobj) + " with Inst ID " + str(inst));
 			
 def updateData():
@@ -208,12 +213,11 @@ def serialWorker(port, baud, decodestr):
 								break
 							#We have the compelte data. Add it to the dock data list
 							dlen = len(decodestr) - 5
-							assert(dlen == len(signallist))
 							inst = 0
 							for signal in signallist:
 								for showitem in signal['showlist']:
-									showitem['obj'].addData(showitem['inst'], [decodedata[PRTCL_INDEXOF_DATA + inst]])
-								inst += 1
+                                                                    showitem['obj'].addData(showitem['inst'], [decodedata[PRTCL_INDEXOF_DATA + inst:PRTCL_INDEXOF_DATA + inst+signal['arrlen']+1]])
+								inst += signal['arrlen']
 							break
 						except Exception as e:
 							print("Not possible to decode data "), e;
@@ -230,7 +234,7 @@ def serialWorker(port, baud, decodestr):
 
 
 thread = Thread(target= serialWorker, args=("/dev/ttyACM0", 115200, decodestr))
-#thread.start()
+thread.start()
 win.show()
 
 ## Start Qt event loop unless running in interactive mode or using pyside.

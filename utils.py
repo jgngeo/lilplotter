@@ -14,6 +14,14 @@ unpackchar = {
 		'string' : 's'
 }
 
+bytelen = { 
+		'char': 1, 'uint8':1, 'int8': 1,
+		'uint16' : 2, 'int16' : 2,
+		'uint32' : 4, 'int32' : 4, 'float'  : 4,
+		'uint64' : 8, 'int64' : 8, 'double' : 8,
+		'string' : 1
+}
+
 datatypeslist = unpackchar.keys()
 	     
 tableopts = {'SIGNAL':0, 'VAL':1, 'AVG':2, 'MIN':3, 'MAX':4}
